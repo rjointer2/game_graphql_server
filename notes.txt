@@ -1,0 +1,42 @@
+
+
+    return {
+        authenticate: function({ 
+            username, email, id } : 
+        { 
+            username: string, email: string, id: string
+        }) {
+            
+            const token = jwt.sign(
+                {
+                 data: { username, email, id } 
+                }, secret, { expiresIn: expiration, algorithm: "HS256" },
+            );
+
+            /* req.headers.authorization = token;
+            console.log(req.headers) */
+            // return the token to the sign in resolver
+            console.log(`${username} is being authiencated...`)
+            return token;
+
+        },
+        verify: function() {
+
+            console.log(req.headers)
+           
+            if( !req.headers.authorization ) return {
+                username: "", email: "", id: ""
+            }
+
+            const token = req.headers.authorization.split(' ').pop()?.trim() as string;
+            console.log(jwt.verify(token, secret, { maxAge: expiration }) )
+
+            return {
+                username: "null", email: "null", id: "null"
+            }
+
+        },
+        endSession: function() {
+            
+        }
+    }
