@@ -7,9 +7,6 @@ import typeDefs from "./typeDefs";
 import resolvers from "./resolvers/combineResolvers";
 import context from './middleware/context';
 
-
-
-
 import connectDb from './connectDB';
 import { Secret } from "jsonwebtoken";
 
@@ -26,8 +23,9 @@ const server = new ApolloServer({
     context,
     csrfPrevention: false,
     cors: {
-        origin: true,
+        origin: '*',
         credentials: true,
+        allowedHeaders: [ "authorization", "Access-Control-Allow-Credentials", "true", "Content-Type", "Access-Control-Allow-Origin","Access-Control-Allow-Headers"]
     }
     
 });

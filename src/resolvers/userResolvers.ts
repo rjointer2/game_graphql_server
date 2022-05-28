@@ -3,16 +3,25 @@ import User, { UserSchema } from "../MongoDB/models"
 import bcrypt from "bcrypt";
 import { Model, Document, Types } from "mongoose";
 import { middleware } from "../middleware/context";
+import { ApolloError } from "apollo-server-express";
 
 
-type User = {
+export type UserType = {
+    id: string
     username: string
     password: string
     email: string
     rank: number
 }
 
-export const signIn = async ( _: never, args: { username: string, password: string }, context: middleware) => {
+export type Token = UserType
+
+type AuthenticationObjectType = {
+    message: string, data?: UserType | null
+}
+
+export const signIn = async ( _: never, args: { username: string, password: string }, middleware: middleware): 
+Promise<AuthenticationObjectType> => {
 
     const user = await User.findOne({ username: args.username });
 
@@ -25,95 +34,52 @@ export const signIn = async ( _: never, args: { username: string, password: stri
     if( await bcrypt.compare( args.password, user.password ) ) {
         // create token from the user data from mongo collection
         // using the context's middleware
+        middleware.authenticate(user.id)
         return {
             message: "Auth Token created and awaiting for authenication...",
-            token: context.authenticate({ username: user.username, email: user.email, id: user.id })
         }
 
     }
 
-
-
-}
-
-
-/* export const createUser = async ( _: never, args: User, context: never ):
-Promise<{ message: string }> => {
-
-    const existingUser = await User.findOne({ email: args.email, username: args.username })
-    
-    if( !existingUser ) {
-        const saltRounds = 10;
-        args.password = await bcrypt.hash( args.password, saltRounds );
-        await User.create(args)
-        return {
-            message: "User creeated successfully"
-        }
-    }
-
-    let err = ""
-
-    if( existingUser.username === args.username ) err += "Username ";
-    if( existingUser.email === args.email ) err += "& Email ";
-
-    err+= "have been taking already";
-
-    existingUser.email = err;
     return {
-        message: err
+        message: 'Incorrect Password Used...',
+        data: null
     }
+
+}
+
+export const createUser = async (  
+    _: never, args: { username: string, password: string, email: string }, middleware: middleware
+): Promise<AuthenticationObjectType> => {
+
+    args.password = await bcrypt.hash(args.password, 10)
     
-}
-
-export const users = async ( _: never, args: User, context: never ): Promise<Model<UserSchema, {}, {}, {}>[]> => {
-
-    const usersArray = await User.find();
-    return [User]
-
-}
-
-
-export const signInUser = async ( _: never, args: User, context: middleware ): 
-Promise<{ message: string, token: string | null }> => {
-
-    const user = await User.findOne({ username: args.username });
-
-    if( !user ) {
-        console.log( 'User not found at signInUser Resolver' )
+    return await User.create(args).then( user => {
+        middleware.authenticate(user.id)
         return {
-            message: "User Not Found",
-            token: null
+            message: "User Created Successfully...",
         }
-    }
-    
-    if( !await bcrypt.compare(args.password, user.password) ) return {
-        message: "Incorrect Password Used",
-        token: null
-    }
+    }).catch(( err: ApolloError ) => {
 
-    const { username, email, id } = user;
+        let message = "Errors when creating User,"
 
-    const token = context.authenticate({ 
-        username, email, id
+        if( err.message.includes('password') ) message += " Password doesn't filfull requirements, ";
+        if( err.message.includes('username') ) message += " Username already exist, ";
+        if( err.message.includes('email') ) message += " Email has beem used already, ";
+
+        return {
+            message,
+            data: null
+        }
     })
-
-    return {
-        message: "",
-        token: token
-    }
-
-}   
-
-export const me = async ( _: never, args: User, context: middleware ) => {
-
-    context.verify()
-    
-
 }
 
+export const me = async (  
+    _: never, __: any, middleware: middleware
+) => {
 
-export const updateUser = async ( _: never, args: User, context: never ) => {
+    console.log(middleware.authorize())
 
-    
 
-} */
+
+}

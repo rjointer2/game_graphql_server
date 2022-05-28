@@ -1,26 +1,31 @@
 
 //import { users, createUser, signInUser, me } from "./userResolvers";
 
+import { Token } from "graphql";
+import { middleware } from "../middleware/context";
 import User, { UserSchema } from "../MongoDB/models";
-import { signIn } from './userResolvers'
+import { signIn, createUser, UserType, me } from './userResolvers'
 
 const userDictionary: any = {}
 
 
 const resolvers = {
     Query: {
-        
+        me
     }, 
     Mutation: {
-        signIn
+        signIn,
+        createUser
     },
-    AuthToken: {
-        data: ( user: { data: UserSchema }) => {
-            // Used after signIn Mutation
-            //- Data shape must invoked as signIn Object => Data Object User props
-            if( user.data ) return user.data;
-            // if user parent data exist return parent user data or excute data resolver
-            return null
+    Token: {
+        // This resolver fires in succession of the "signIn" or "createUser"
+        data: async ( __: UserType, _: never, middleware: middleware ) => {
+            const { token } = middleware.authorize()
+            return {
+                username: "",
+                token
+            }
+            
         }
     },
 }

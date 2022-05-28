@@ -9,61 +9,26 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const models_1 = __importDefault(require("../MongoDB/models"));
+const userResolvers_1 = require("./userResolvers");
 const userDictionary = {};
 const resolvers = {
-    Query: {},
+    Query: {
+        me: userResolvers_1.me
+    },
     Mutation: {
-        signIn: (_, args) => __awaiter(void 0, void 0, void 0, function* () {
-            const user = yield models_1.default.findOne({ username: args.username });
-            if (!user)
-                return {
-                    message: "Incorrect Username or Password",
-                    data: null
-                };
+        signIn: userResolvers_1.signIn,
+        createUser: userResolvers_1.createUser
+    },
+    Token: {
+        // This resolver fires in succession of the "signIn" or "createUser"
+        data: (__, _, middleware) => __awaiter(void 0, void 0, void 0, function* () {
+            const { token } = middleware.authorize();
             return {
-                message: "Logged In Succesfully...",
-                data: user
+                username: "",
+                token
             };
         })
     },
-    LoggedInUser: {
-        data: (user) => {
-            return user.data;
-        }
-    },
 };
-/*
-
-Query: {
-        user: () => {
-            return {
-                username: 'Bob'
-            }
-        }
-    },
-    User: {
-        data: (_: any) => {
-            console.log(_)
-            return {
-                password: _.username === "Bob" ? "BobPassword" : "secret"
-            }
-        }
-    }
-
-*/
-/* const resolvers = {
-    Query: {
-        me,
-        users
-    },
-    Mutation: {
-        createUser,
-        signInUser,
-    }
-} */
 exports.default = resolvers;

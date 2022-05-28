@@ -26,8 +26,9 @@ const server = new apollo_server_1.ApolloServer({
     context: context_1.default,
     csrfPrevention: false,
     cors: {
-        origin: true,
+        origin: '*',
         credentials: true,
+        allowedHeaders: ["authorization", "Access-Control-Allow-Credentials", "true", "Content-Type", "Access-Control-Allow-Origin", "Access-Control-Allow-Headers"]
     }
 });
 (() => __awaiter(void 0, void 0, void 0, function* () {

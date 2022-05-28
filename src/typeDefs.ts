@@ -3,12 +3,13 @@ import { gql } from "apollo-server";
 
 const typeDefs = gql`
 
-    type AuthToken {
+    type Token {
         message: String
-        token: String
+        data: User
     }
 
-    type Data {
+    type User {
+        token: String
         username: String
         password: String
         email: String
@@ -16,60 +17,15 @@ const typeDefs = gql`
     }
 
     type Query {
-        user: LoggedInUser
+        token: Token
+        me: User
     }
 
     type Mutation {
-        signIn ( username: String!, password: String! ): AuthToken
+        signIn ( username: String!, password: String! ): Token
+        createUser ( username: String!, password: String!, email: String! ): Token
     }
 
 `;
 
 export default typeDefs;
-
-
-/* 
-
-type User {
-        username: String
-        data: Data
-    }
-
-    type Data {
-        password: String
-        email: String
-        rank: Int
-    }
-
-    type Query {
-        user: User
-    }
-
-*/
-
-/* type User {
-        username: String
-        password: String
-        email: String
-        rank: Int
-    }
-
-    type Auth {
-        token: String
-        message: String
-    }
-
-    type ME {
-        user: User
-    }
-
-
-    type Query {
-       users: [User]
-       me: User
-    }
-
-    type Mutation {
-        createUser ( username: String!, password: String!, email: String! ): Auth
-        signInUser ( username: String!, password: String!, ): Auth
-    } */
