@@ -23,10 +23,10 @@ const resolvers = {
     Token: {
         // This resolver fires in succession of the "signIn" or "createUser"
         data: (__, _, middleware) => __awaiter(void 0, void 0, void 0, function* () {
-            const { token } = middleware.authorize();
+            const {} = middleware.authorize();
             return {
                 username: "",
-                token
+                token: ''
             };
         })
     },

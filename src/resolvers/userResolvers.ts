@@ -78,7 +78,11 @@ export const me = async (
     _: never, __: any, middleware: middleware
 ) => {
 
-    console.log(middleware.authorize())
+    middleware.authorize()
+
+    return {
+        username: ""
+    }
 
 
 

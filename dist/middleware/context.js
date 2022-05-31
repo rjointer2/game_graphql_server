@@ -9,23 +9,24 @@ dotenv_1.default.config();
 const secret = process.env.SECRET;
 const expiration = '2h';
 function middleware({ req, res }) {
+    console.log(req.session.id, "test");
     return {
         authenticate: (id) => {
-            console.log(req.headers.authorization);
             const token = jsonwebtoken_1.default.sign({
                 data: id
             }, secret, { expiresIn: expiration, algorithm: process.env.SR });
-            req.headers.authorization = token;
+            req.session.token = token;
+            console.log(req.session.id);
             return token;
         },
         authorize: () => {
-            if (!req.headers.authorization)
+            console.log(req.session.token);
+            if (!req.session.token)
                 return {
                     id: "",
                     token: ""
                 };
-            console.log(req.headers.authorization);
-            const token = req.headers.authorization.split(' ').pop();
+            const token = req.session.token.split(' ').pop();
             if (!token)
                 return {
                     id: "",
@@ -35,7 +36,7 @@ function middleware({ req, res }) {
             const { data } = jsonwebtoken_1.default.verify(token, secret, { maxAge: expiration });
             return {
                 id: data,
-                token: req.headers.authorization
+                token: req.session.token
             };
         }
     };

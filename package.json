@@ -10,6 +10,7 @@
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
     "express-jwt": "^7.7.2",
+    "express-session": "^1.17.3",
     "graphql": "^16.5.0",
     "init": "^0.1.2",
     "jsonwebtoken": "^8.5.1",
@@ -35,5 +36,8 @@
     "url": "https://github.com/rjointer2/game_graphql_server/issues"
   },
   "homepage": "https://github.com/rjointer2/game_graphql_server#readme",
-  "description": ""
+  "description": "",
+  "devDependencies": {
+    "@types/express-session": "^1.17.4"
+  }
 }

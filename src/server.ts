@@ -1,6 +1,8 @@
 
-import { ApolloServer, gql } from "apollo-server"
-
+import { ApolloServer } from 'apollo-server-express';
+import session from 'express-session';
+import express from 'express';
+import http from 'http';
 
 
 import typeDefs from "./typeDefs";
@@ -21,11 +23,44 @@ const server = new ApolloServer({
     typeDefs,
     resolvers,
     context,
+});
+
+
+( async () => {
+
+    const app = express();
+
+    app.use(session({
+        secret: process.env.SECRET as string,
+        name: 'ekug&^Hn',
+        saveUninitialized: true,
+        resave: true,
+    }))
+
+    const httpServer = http.createServer(app)
+
+
+    await server.start();
+    server.applyMiddleware({ app });
+
+    httpServer.listen( _port, () => {
+        connectDb();
+    })
+
+})()
+
+
+
+/* const server = new ApolloServer({
+    typeDefs,
+    resolvers,
+    context,
     csrfPrevention: false,
     cors: {
         origin: '*',
         credentials: true,
-        allowedHeaders: [ "authorization", "Access-Control-Allow-Credentials", "true", "Content-Type", "Access-Control-Allow-Origin","Access-Control-Allow-Headers"]
+        exposedHeaders: ['authorization'],
+        allowedHeaders: [ "authorization", "Access-Control-Allow-Credentials", "true", "Content-Type", "Access-Control-Allow-Origin","Access-Control-Allow-Headers", 'Access-Control-Expose-Headers']
     }
     
 });
@@ -37,7 +72,7 @@ const server = new ApolloServer({
     server.listen( _port, () => console.log('listening for request') )
     
 })()
-
+ */
 
 
 

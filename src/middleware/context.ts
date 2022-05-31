@@ -2,6 +2,7 @@
 import jwt, { Secret } from "jsonwebtoken";
 import dotenv from "dotenv";
 import http, { IncomingMessage } from "http";
+import { Express } from 'express'
 
 
 type ID = string
@@ -21,27 +22,31 @@ const secret = process.env.SECRET as Secret
 const expiration = '2h'
 
 
-export default function middleware({ req , res } : { req: IncomingMessage, res: Response }): middleware { 
+export default function middleware({ req , res } : { req: Express.Request & IncomingMessage & { session: {
+    token: string
+} }, res: Response }): middleware { 
+
+    console.log(req.session.id, "test")
 
     return {
         authenticate: (id) => {
-            console.log(req.headers.authorization )
             const token = jwt.sign(
                 {
                  data: id 
                 }, secret, { expiresIn: expiration, algorithm: process.env.SR as unknown as jwt.Algorithm},
             )
-                req.headers.authorization = token
+                req.session.token = token
+                console.log(req.session.id)
             return token;
         },
         authorize: () => {
-            
-            if( !req.headers.authorization ) return {
+            console.log(req.session.token)
+            if( !req.session.token) return {
                 id: "",
                 token: ""
             };
-            console.log(req.headers.authorization)
-            const token = req.headers.authorization.split(' ').pop()
+
+            const token = req.session.token.split(' ').pop()
 
             if( !token ) return {
                 id: "",
@@ -54,7 +59,7 @@ export default function middleware({ req , res } : { req: IncomingMessage, res: 
             
             return {
                 id: data,
-                token: req.headers.authorization 
+                token: req.session.token
             }
 
         }

@@ -20,10 +20,10 @@ const resolvers = {
     Token: {
         // This resolver fires in succession of the "signIn" or "createUser"
         data: async ( __: UserType, _: never, middleware: middleware ) => {
-            const { token } = middleware.authorize()
+            const {  } = middleware.authorize()
             return {
                 username: "",
-                token
+                token: ''
             }
             
         }
